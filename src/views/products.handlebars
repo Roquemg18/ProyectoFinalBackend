@@ -1,0 +1,30 @@
+<h2>Bienvenido</h2>
+<label for="">Nombre</label>
+<h3>{{user.first_name}}</h3>
+
+<label for="">Apellido</label>
+<h3>{{user.last_name}}</h3>
+
+<label for="">Correo</label>
+<h3>{{user.email}}</h3>
+<h1>Productos</h1>
+{{#each payload}}
+ 
+  <div>
+    <h3>{{this.title}}</h3>
+    <p>{{this.description}}</p>
+    <p>Price: ${{this.price}}</p>
+    <p>Stock: {{this.stock}}</p>
+    <form action="/carts/add" method="POST">
+      <input type="hidden" name="productId" value="{{_id}}">
+      <button type="submit">Add to cart</button>
+    </form>
+  </div>
+{{/each}}
+
+<h2>Pagina {{this.currentPage}} of {{this.totalPages}}</h2>
+<div>
+  <a href="?page={{prevPage}}">Previous</a>
+  <a href="?page={{nextPage}}">Next</a>
+  
+</div>

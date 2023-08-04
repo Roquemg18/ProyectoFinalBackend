@@ -1,0 +1,145 @@
+openapi: "3.0.1"
+info: title:API products
+  version:"1.0"
+paths:
+  /api/products/:
+    get:
+      summary: Obtener lista de productos.
+      tags: [Productos]
+      parameters:
+        - name: limit
+          in: query
+          description: Cantidad de productos por página.
+          schema:
+            type: integer
+            default: 10
+        - name: page
+          in: query
+          description: Número de página.
+          schema:
+            type: integer
+            default: 1
+        - name: sort
+          in: query
+          description: Orden de clasificación de los productos (ascendente o descendente).
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: query
+          in: query
+          description: Término de búsqueda para filtrar los productos por título y descripción.
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Categoría de los productos.
+          schema:
+            type: string
+        - name: availability
+          in: query
+          description: Disponibilidad de los productos.
+          schema:
+            type: string
+      responses:
+        200:
+          description: Lista de productos obtenida correctamente.
+        500:
+          description: Error interno del servidor.
+  /api/products/loadData:
+    get:
+      summary: Cargar datos de productos desde un archivo.
+      tags: [Productos]
+      responses:
+        200:
+          description: Datos de productos cargados correctamente.
+        400:
+          description: Error al cargar los datos de productos.
+  /api/products:
+    post:
+      summary: Crear un nuevo producto.
+      tags: [Productos]
+      requestBody:
+        description: Datos del nuevo producto.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        200:
+          description: Producto creado correctamente.
+        400:
+          description: Error al crear el producto.
+        500:
+          description: Error interno del servidor.
+  /api/products/{pid}:
+    put:
+      summary: Actualizar un producto existente.
+      tags: [Productos]
+      parameters:
+        - name: pid
+          in: path
+          description: ID del producto a actualizar.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Datos actualizados del producto.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        200:
+          description: Producto actualizado correctamente.
+        403:
+          description: No tienes permisos para modificar el producto.
+        404:
+          description: Producto no encontrado.
+        500:
+          description: Error interno del servidor
+  /api/products/{pid}/:
+    delete:
+      summary: Eliminar un producto existente.
+      tags: [Productos]
+      parameters:
+        - name: pid
+          in: path
+          description: ID del producto a eliminar.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Producto eliminado correctamente.
+        403:
+          description: No tienes permisos para eliminar el producto.
+        404:
+          description: Producto no encontrado.
+        500:
+          description: Error interno del servidor.
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        code:
+          type: string
+        price:
+          type: string
+        stock:
+          type: number
+        category:
+          type: string
+        thumbnail:
+          type: string
+        owner:
+          type: string
+          required: true
+          default: "admin"
+          description: El propietario del producto.

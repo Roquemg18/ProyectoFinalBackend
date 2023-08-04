@@ -1,0 +1,76 @@
+openapi: "3.0.1"
+info:
+  title: API carts
+  version: "1.0"
+paths:
+  /api/carts/:
+    get:
+      summary: Obtener lista de carritos.
+      tags: [Carrito]
+      responses:
+        200:
+          description: Lista de carritos obtenida correctamente.
+        400:
+          description: Error al obtener la lista de carritos.
+
+  /api/carts/{cid}:
+    get:
+      summary: Obtener un carrito por su ID.
+      tags: [Carrito]
+      parameters:
+        - name: cid
+          in: path
+          description: ID del carrito a obtener.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Carrito obtenido correctamente.
+        400:
+          description: Error al obtener el carrito.
+
+    delete:
+      summary: Elimina el carrito mediante un ID.
+      tags: [Carrito]
+      parameters:
+        - name: cid
+          in: path
+          description: ID del carrito a eliminar.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Carrito eliminado correctamente.
+
+  /api/carts/{cid}/purchase:
+    post:
+      summary: Realizar una compra a partir del carrito.
+      tags: [Carrito]
+      parameters:
+        - name: cid
+          in: path
+          description: ID del carrito.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Compra realizada correctamente.
+        500:
+          description: Error
+
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        carts:
+          type: object
+          properties:
+            product:
+              type: array
+            quantity:
+              type: number
+              default: 1

@@ -1,0 +1,38 @@
+form{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    padding:0 20%;
+    margin-top: 60px;
+}
+label{
+    margin: 0 20px;
+    font-size: 25px;
+}
+input{
+    border-radius: 1rem;
+    margin: 10px;
+}
+button{
+    width: 20%;
+    margin-left: 200px;
+}
+li{
+    margin: auto;
+    width: 100%;
+    height: 80px;
+    list-style: none;
+    font-size: 1.5rem;
+}
+.buttonCrate{
+    width: 300px;
+    margin: auto;
+    margin-bottom: 100px;
+}
+.containerUser{
+    border:1px solid black ;
+    width: 500px;
+    height: 230px;
+    margin: 5px;
+    padding: 15px;
+}

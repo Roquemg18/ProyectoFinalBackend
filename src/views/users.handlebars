@@ -1,0 +1,11 @@
+<h1>Users</h1>
+
+{{#each payload}}
+    <div class="containerUser">
+        <ul>
+            <li>Nombre: {{this.nombre}}</li>
+            <li>Correo: {{this.correo}}</li>
+            <li>Rol: {{this.rol}}</li>
+        </ul>
+    </div>
+{{/each}}
