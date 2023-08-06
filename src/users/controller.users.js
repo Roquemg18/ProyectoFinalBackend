@@ -10,10 +10,10 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
-    const users = await Users.getAll(); // Asegúrate de invocar la función getAll() aquí
+    const users = await Users.getAll();
 
     const payload = users.map((user) => ({
-      nombre: user.first_name, // Corrige el typo "fist_name" a "first_name"
+      nombre: user.first_name,
       correo: user.email,
       rol: user.role,
     }));
@@ -55,13 +55,11 @@ router.post(
         return res.status(404).json({ error: "Usuario no encontrado" });
       }
 
-      // Verificar si el usuario ya ha subido todos los documentos requeridos
       const hasIncompleteDocument = user.documents.some(
         (doc) => doc.reference === "incomplete"
       );
 
       if (user.documents.length < 3 || hasIncompleteDocument) {
-        // Actualizar el estado de carga de documentos
         user.documents = req.files.map((file) => ({
           name: file.originalname,
           reference: "complete",
@@ -92,13 +90,12 @@ router.put("/:uid", async (req, res) => {
 router.put("/premium/:uid", async (req, res) => {
   try {
     const { uid } = req.params;
-    const user = await Users.findById(uid);
+    const user = await Users.getOne(uid);
 
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Verificar si el usuario ha subido los documentos requeridos
     if (
       user.documents.length < 3 ||
       user.documents.some((doc) => doc.reference !== "complete")
@@ -108,8 +105,7 @@ router.put("/premium/:uid", async (req, res) => {
       });
     }
 
-    // Actualizar al usuario a premium
-    user.status = "premium";
+    user.role = "premium";
     await user.save();
 
     res.json({ message: "Usuario actualizado a premium exitosamente" });
@@ -144,7 +140,7 @@ router.delete("/", async (req, res) => {
 });
 
 async function deleteInactiveUsers() {
-  const inactiveUsersThreshold = 10; // Minutos de inactividad para eliminar a un usuario (puedes ajustarlo a 2 días o 30 minutos según tus necesidades)
+  const inactiveUsersThreshold = 2880;
   let inactiveUsers = await Users.getAll();
   inactiveUsers = inactiveUsers.filter((user) => {
     const lastConnectionTime = new Date(user.last_connection).getTime();
@@ -156,8 +152,6 @@ async function deleteInactiveUsers() {
 
   const deletedUsersEmails = inactiveUsers.map((user) => user.email);
   console.log(deletedUsersEmails);
-
-  // Eliminar los usuarios inactivos de la base de datos
 
   await Promise.all(inactiveUsers.map((user) => Users.delete(user._id)));
 

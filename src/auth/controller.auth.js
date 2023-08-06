@@ -1,5 +1,4 @@
 const { Router } = require("express");
-const { passwordValidate, createHash } = require("../utils/cryptPassword.util");
 const passport = require("passport");
 const transport = require("../utils/mail.util");
 const bcrypt = require("bcrypt");

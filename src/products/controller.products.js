@@ -3,7 +3,10 @@ const FilesDao = require("../dao/files.dao");
 const Product = require("../dao/models/products.model");
 const EntityDAO = require("../dao/entity.dao");
 const ProductDTO = require("../DTOs/products.dto");
+const transporter  = require("../utils/mail.util");
+const passport = require("passport");
 
+const Users = new EntityDAO("users");
 const ProductsFile = new FilesDao("products.json");
 const Products = new EntityDAO("products");
 const router = Router();
@@ -83,6 +86,26 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/profile", async (req, res) => {
+  try {
+    // Obtener el usuario actual
+    const users = await Users.getAll();
+    const currentUser = users.find((user) => user.role);
+    console.log("current user: " + currentUser);
+
+    // Verificar si el usuario está autenticado
+    if (!currentUser) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    // Devolver la información del usuario actual
+    res.json({ user: currentUser.role });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ status: "Error", error: "An error occurred" });
+  }
+});
+
 router.get("/loadData", async (req, res) => {
   try {
     const products = await ProductsFile.getItems();
@@ -95,8 +118,8 @@ router.get("/loadData", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const info = new ProductDTO(req.body); 
-    const newProduct = await Products.create(info); 
+    const info = new ProductDTO(req.body);
+    const newProduct = await Products.create(info);
     res.json({ status: "success", message: newProduct });
   } catch (error) {
     if (error.code === 11000) {
@@ -115,23 +138,18 @@ router.put("/:pid", async (req, res) => {
     const currentUser = req.user;
 
     if (currentUser.role === "admin") {
-      // Modificar el producto sin restricciones
       const updatedProduct = await Products.update(productInfo, productId);
       res.json({ message: updatedProduct });
     } else if (currentUser.role === "premium") {
-      // Verificar si el producto pertenece al usuario premium
       const existingProduct = await Products.findById(productId);
       if (!existingProduct) {
         return res.status(404).json({ error: "Product not found" });
       }
-
       if (existingProduct.owner !== currentUser.email) {
         return res
           .status(403)
           .json({ error: "You can only modify your own products" });
       }
-
-      // Modificar el producto que pertenece al usuario premium
       const updatedProduct = await Products.update(productInfo, productId);
       res.json({ message: updatedProduct });
     } else {
@@ -150,7 +168,8 @@ router.delete("/:pid", async (req, res) => {
     const productId = req.params.pid;
 
     // Obtener el usuario actual (supongamos que está almacenado en req.user)
-    const currentUser = req.user;
+    const users = await Users.getAll();
+    const currentUser = users.find((user) => user.role);
 
     // Verificar si el usuario es admin
     if (currentUser.role === "admin") {
@@ -159,19 +178,17 @@ router.delete("/:pid", async (req, res) => {
       res.json({ message: "Product deleted" });
     } else if (currentUser.role === "premium") {
       // Verificar si el producto pertenece al usuario premium
-      const existingProduct = await Products.findById(productId);
+      const existingProduct = await Products.getOne(productId);
       if (!existingProduct) {
         return res.status(404).json({ error: "Product not found" });
       }
 
-      if (existingProduct.owner !== currentUser.email) {
-        return res
-          .status(403)
-          .json({ error: "You can only delete your own products" });
-      }
+     
 
       // Eliminar el producto que pertenece al usuario premium
       await Products.delete(productId);
+      await sendNotificationEmails([currentUser.email]);
+
       res.json({ message: "Product deleted" });
     } else {
       res
@@ -179,9 +196,20 @@ router.delete("/:pid", async (req, res) => {
         .json({ error: "You don't have permission to delete products" });
     }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error:", error);
+    res.status(500).json({ status: "Error", error: "An error occurred" });
   }
 });
+
+async function sendNotificationEmails(emails) {
+  const mailOptions = {
+    from: "molinaroque871@gmail.com",
+    to: emails.join(","),
+    subject: "Producto eliminado",
+    text: "Tu producto ha sido eliminado.",
+  };
+
+  await transporter.sendMail(mailOptions);
+}
 
 module.exports = router;
