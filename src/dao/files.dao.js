@@ -12,7 +12,7 @@ class FilesDao{
                 const items = JSON.parse(data)
                 return items
             } catch (error) {
-                console.log(error)
+                throw error;
             }
         }
         return 'el archivo no existe'

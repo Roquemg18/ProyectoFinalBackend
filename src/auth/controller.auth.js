@@ -40,8 +40,7 @@ router.post(
 
       res.json({ status: "success", message: "Sesión iniciada" });
     } catch (error) {
-      console.log(error.message);
-      res.status(500).json({ status: "error", error: "Internal Server Error" });
+      throw error;
     }
   }
 );
@@ -71,7 +70,6 @@ router.get("/logout", (req, res) => {
 router.post("/forgotpassword", async (req, res) => {
   try {
     const { email } = req.body;
-    console.log(email);
 
     const resetToken = generateResetToken();
 

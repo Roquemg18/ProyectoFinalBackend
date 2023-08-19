@@ -1,3 +1,8 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 form{
     display: flex;
     flex-direction: column;
@@ -12,10 +17,12 @@ label{
 input{
     border-radius: 1rem;
     margin: 10px;
+    width: 600px;
 }
 button{
     width: 20%;
     margin-left: 200px;
+    width: 150px;
 }
 li{
     margin: auto;
@@ -35,4 +42,63 @@ li{
     height: 230px;
     margin: 5px;
     padding: 15px;
+}
+.redireccion{
+    border-radius: 5%;
+    width: 100%;
+    height: 80px;
+    background-color: rgb(211, 206, 206);
+    padding: 10px;
+    color: black;
+    text-decoration: none;
+    margin: 10px;
+}
+.containerRedirectionLogin{
+ margin-top: 100px;
+ margin-left: 500px;
+}
+.productTitle{
+    text-align: center;
+}
+.containerInfoUserProducts{
+    display: flex;
+    flex-direction: column;
+    margin-left: 100px;
+}
+.containerProduct{
+    width: 300px;
+    height: 250px;
+    background-color: rgb(207, 204, 204);
+    color: black;
+    padding: 20px;
+    border-radius: 5%;
+    margin: 10px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.AddToCartContainer{
+    margin-right: 20px;
+    padding: 0;
+    margin: 0;
+
+}
+.AddToCartButton{
+    margin: 0;
+    margin-right: 20px;
+    margin-top: 10px;
+    width: 100px;
+    height: 40px;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+}
+.productDescription{
+    margin: 5px;
+}
+.containerAllProducts{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px;
 }

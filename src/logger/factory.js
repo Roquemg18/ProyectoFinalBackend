@@ -12,7 +12,6 @@ function getLogger() {
       logger = require("./prod.logger");
       break;
     default:
-      // Manejar un valor de appConfig no válido o proporcionar un logger por defecto
       logger = require("./dev.logger");
       break;
   }

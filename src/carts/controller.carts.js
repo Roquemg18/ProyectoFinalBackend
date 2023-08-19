@@ -7,19 +7,20 @@ const User = require("../dao/models/users.model");
 
 router.get("/", async (req, res) => {
   try {
-    const carts = await Carts.findAll();
-    res.json({ message: carts });
+    const cart = await Carts.getOne("64df834c2c3e9956494e044f");
+    const payload = cart.carts.product;
+    res.render("cart.handlebars", { payload });
   } catch (error) {
-    res.status(400).json({ error });
+    throw error;
   }
 });
 
 router.get("/:cid", async (req, res) => {
   try {
     const cid = req.params.cid;
-    const products = await Carts.findId(cid);
+    const carts = await Carts.getOne(cid);
+    const products = carts.product;
     res.json({ message: products });
-    //res.render("cart.handlebars",{products})
   } catch (error) {
     res.status(400).json({ error });
   }
@@ -66,14 +67,32 @@ router.post("/:cid/purchase", async (req, res) => {
   }
 });
 
-// Función auxiliar para calcular el monto total de la compra
-function calculateTotalAmount(products) {
-  let totalAmount = 0;
-  for (const product of products) {
-    totalAmount += product.price * product.quantity;
+router.post("/add", async (req, res) => {
+  try {
+    const { productId } = req.body;
+
+    const selectedProduct = await Products.getOne(productId);
+
+    const carrito = await Carts.getOne("64df834c2c3e9956494e044f");
+
+    if (!carrito) {
+      const newCart = new Carts({
+        carts: {
+          product: [selectedProduct],
+          quantity: 1,
+        },
+      });
+      await newCart.save();
+    } else {
+      carrito.carts.product.push(selectedProduct);
+      await carrito.save();
+    }
+
+    res.redirect("/api/carts");
+  } catch (error) {
+    throw error;
   }
-  return totalAmount;
-}
+});
 
 router.post("/", async (req, res) => {
   try {
@@ -96,10 +115,8 @@ router.put("/:cid", async (req, res) => {
   try {
     const cid = req.params.cid;
     const products = req.body;
-    console.log("llega esto:", products);
 
     const cart = await Carts.update(products, cid);
-    console.log(cart);
     res.json(cart);
   } catch (error) {
     res.status(400).json({ error });
@@ -111,13 +128,10 @@ router.put("/:cid/products/:pid", async (req, res) => {
     const cid = req.params.cid;
     const pid = req.params.pid;
     const quantity = req.body.quantity;
-
-    // Obtener el usuario actual (supongamos que está almacenado en req.user)
     const currentUser = req.user;
 
-    // Verificar si el usuario es premium
     if (currentUser.role === "premium") {
-      // Verificar si el producto pertenece al usuario premium
+
       const cart = await Carts.findId(cid);
       if (!cart) {
         return res.status(404).json({ error: "Cart not found" });
@@ -128,7 +142,6 @@ router.put("/:cid/products/:pid", async (req, res) => {
       );
       if (productIndex !== -1) {
         const product = cart.products[productIndex];
-        // Obtener el usuario propietario del producto desde la base de datos
         const productOwner = await User.findOne({ email: product.owner });
         if (
           productOwner &&
@@ -171,4 +184,22 @@ router.delete("/:cid", async (req, res) => {
   }
 });
 
+router.post("/finalizar", async (req, res) => {
+  try {
+    const cart = await Carts.getOne("64df834c2c3e9956494e044f");
+    cart.carts.product = [];
+    await cart.save();
+
+    res.redirect("/api/products");
+  } catch (error) {
+    throw error;
+  }
+});
+function calculateTotalAmount(products) {
+  let totalAmount = 0;
+  for (const product of products) {
+    totalAmount += product.price * product.quantity;
+  }
+  return totalAmount;
+}
 module.exports = router;

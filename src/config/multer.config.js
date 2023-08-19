@@ -2,7 +2,6 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Configurar multer para guardar archivos en diferentes carpetas
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const { uid } = req.params;

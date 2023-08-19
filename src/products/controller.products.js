@@ -3,7 +3,7 @@ const FilesDao = require("../dao/files.dao");
 const Product = require("../dao/models/products.model");
 const EntityDAO = require("../dao/entity.dao");
 const ProductDTO = require("../DTOs/products.dto");
-const transporter  = require("../utils/mail.util");
+const transporter = require("../utils/mail.util");
 const passport = require("passport");
 
 const Users = new EntityDAO("users");
@@ -88,17 +88,13 @@ router.get("/", async (req, res) => {
 
 router.get("/profile", async (req, res) => {
   try {
-    // Obtener el usuario actual
     const users = await Users.getAll();
     const currentUser = users.find((user) => user.role);
-    console.log("current user: " + currentUser);
 
-    // Verificar si el usuario está autenticado
     if (!currentUser) {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
-    // Devolver la información del usuario actual
     res.json({ user: currentUser.role });
   } catch (error) {
     console.error("Error:", error);
@@ -106,13 +102,13 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-router.get("/loadData", async (req, res) => {
+router.get("/loaddata", async (req, res) => {
   try {
     const products = await ProductsFile.getItems();
-    const newProduct = await Products.insertMany(products);
+    const newProduct = await Product.insertMany(products);
     res.json({ status: "success", message: newProduct });
   } catch (error) {
-    res.status(400).json({ status: "error", error });
+    throw error;
   }
 });
 
@@ -158,34 +154,25 @@ router.put("/:pid", async (req, res) => {
         .json({ error: "You don't have permission to modify products" });
     }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "internal server error" });
+    throw error;
   }
 });
 
 router.delete("/:pid", async (req, res) => {
   try {
     const productId = req.params.pid;
-
-    // Obtener el usuario actual (supongamos que está almacenado en req.user)
     const users = await Users.getAll();
     const currentUser = users.find((user) => user.role);
 
-    // Verificar si el usuario es admin
     if (currentUser.role === "admin") {
-      // Eliminar el producto sin restricciones
       await Products.delete(productId);
       res.json({ message: "Product deleted" });
     } else if (currentUser.role === "premium") {
-      // Verificar si el producto pertenece al usuario premium
       const existingProduct = await Products.getOne(productId);
       if (!existingProduct) {
         return res.status(404).json({ error: "Product not found" });
       }
 
-     
-
-      // Eliminar el producto que pertenece al usuario premium
       await Products.delete(productId);
       await sendNotificationEmails([currentUser.email]);
 

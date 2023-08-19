@@ -16,14 +16,11 @@ socket.on("updateProducts", (products) => {
     });
 });
 
-// Función para crear un nuevo producto
 function createProduct() {
     const name = document.getElementById("productName").value;
     const price = document.getElementById("productPrice").value;
     socket.emit("newProduct", { id: Date.now(), name, price });
 }
-
-// Función para eliminar un producto existente
 function deleteProduct(id) {
     socket.emit("deleteProduct", { id });
 }

@@ -36,9 +36,7 @@ router.post(
     try {
       res.status(201).json({ status: "success", message: "Usuario creado" });
     } catch (error) {
-      console.log(error.message);
-
-      res.status(500).json({ status: "error", error: "error interno" });
+      throw error;
     }
   }
 );
@@ -69,8 +67,7 @@ router.post(
 
       res.json({ message: "Archivos subidos exitosamente" });
     } catch (error) {
-      console.log(error);
-      res.status(500).json({ error: "Internal server error" });
+      throw error;
     }
   }
 );
@@ -82,8 +79,7 @@ router.put("/:uid", async (req, res) => {
     const newUser = await Users.update(info, id);
     res.json({ message: newUser });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "internal server error" });
+    throw error;
   }
 });
 
@@ -110,8 +106,7 @@ router.put("/premium/:uid", async (req, res) => {
 
     res.json({ message: "Usuario actualizado a premium exitosamente" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal server error" });
+    throw error;
   }
 });
 
@@ -120,8 +115,7 @@ router.delete("/:uid", async (req, res) => {
     const id = req.params.uid;
     await Users.delete(id);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "internal server error" });
+    throw error;
   }
 });
 
@@ -151,8 +145,7 @@ async function deleteInactiveUsers() {
   });
 
   const deletedUsersEmails = inactiveUsers.map((user) => user.email);
-  console.log(deletedUsersEmails);
-
+  
   await Promise.all(inactiveUsers.map((user) => Users.delete(user._id)));
 
   return deletedUsersEmails;

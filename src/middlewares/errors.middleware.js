@@ -1,7 +1,6 @@
 const EnumErrors = require("../handlers/EnumError");
 
 const errorHandler = (error, req, res, next) => {
-  console.log(error.cause);
 
   switch (error.code) {
     case EnumErrors.INVALID_TYPES_ERROR:
